@@ -1,0 +1,25 @@
+# File/Folder yang tidak boleh diupload ke GitHub
+
+# Log dan Metadata
+*.log
+*.pot
+*.mo
+
+# Python Bytecode Files
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual Environment (Sangat Penting!)
+myvenv/
+venv/
+.venv/
+
+# Django / Database / File Media (Sangat Penting!)
+db.sqlite3
+media/
+static/
+
+# File Konfigurasi Lokal dan Kunci Rahasia
+# Mengabaikan settings.py di folder konfigurasi
+/data_kelurahan/settings.py

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Pengaduan</title>
+</head>
+<body>
+    <h1>{% if object %}Edit Pengaduan{% else %}Buat Pengaduan Baru{% endif %}</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Simpan Pengaduan</button>
+    </form>
+    
+    <p><a href="{% url 'pengaduan-list' %}">Batal</a></p>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Daftar Semua Pengaduan</title>
+</head>
+<body>
+    <h1>Daftar Semua Pengaduan</h1>
+    <p>
+        <a href="{% url 'warga-list' %}">Kembali ke Daftar Warga</a> | 
+        <a href="{% url 'pengaduan-tambah' %}">Buat Pengaduan Baru</a>
+    </p>
+    <hr>
+    <ul>
+        {% for aduan in object_list %}
+            <li>
+                <strong>{{ aduan.judul }}</strong> 
+                (Status: {{ aduan.get_status_display }})
+                
+                Dilaporkan oleh: 
+                <a href="{% url 'warga-detail' aduan.pelapor.pk %}">{{ aduan.pelapor.nama_lengkap }}</a>
+                
+                [ <a href="{% url 'pengaduan-edit' aduan.pk %}">Edit</a> | 
+                <a href="{% url 'pengaduan-hapus' aduan.pk %}">Hapus</a> ]
+
+                <p style="margin-top: 5px; margin-left: 10px;">{{ aduan.deskripsi }}</p>
+            </li>
+        {% empty %}
+            <li>Belum ada data pengaduan yang terdaftar.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

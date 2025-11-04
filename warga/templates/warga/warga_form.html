@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Warga</title>
+</head>
+<body>
+    <h1>{% if object %}Edit Data Warga{% else %}Form Pendaftaran Warga Baru{% endif %}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Simpan</button>
+    </form>
+    <p><a href="{% url 'warga-list' %}">Batal</a></p>
+</body>
+</html>

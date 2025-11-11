@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>🏡 {% block title %}Aplikasi Warga Kelurahan{% endblock %} ✨</title>
+
+    <style>
+        :root {
+            --primary-color: #3f51b5; /* Indigo */
+            --accent-color: #ffc107; /* Amber untuk highlight */
+            --secondary-color: #e8eaf6; /* Light Purple Background */
+            --danger-color: #f44336; /* Merah */
+            --danger-color-pastel: #ff8a80; /* Merah Pastel */
+            --text-dark: #333;
+            --text-light: #fff;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --sidebar-width: 200px; /* Lebar Sidebar Desktop */
+            --sidebar-collapsed-width: 60px; /* Lebar Sidebar Mobile/Collapsed */
+        }
+
+        /* Reset dan Dasar */
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* -------------------------- */
+        /* KONTAINER UTAMA & SIDEBAR */
+        /* -------------------------- */
+        .container {
+            display: flex;
+        }
+        
+        .sidebar {
+            width: var(--sidebar-width); 
+            height: 100vh;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 15px 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            transition: width 0.3s;
+            flex-shrink: 0;
+            position: sticky; 
+            top: 0;
+        }
+
+        .sidebar h1 {
+            padding: 0 15px;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+        }
+        
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 15px 15px;
+            transition: background-color 0.3s;
+            white-space: nowrap; 
+        }
+
+        .sidebar nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar .icon {
+            font-size: 1.4em;
+            margin-right: 15px;
+            width: 30px; 
+            text-align: center;
+        }
+        
+        /* -------------------------- */
+        /* MAIN CONTENT */
+        /* -------------------------- */
+        .main-content {
+            flex-grow: 1;
+            padding: 20px 30px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        main {
+            flex-grow: 1;
+            padding: 20px 0;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* -------------------------- */
+        /* KARTU PENGADUAN & WARGA */
+        /* -------------------------- */
+        .warga-list-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 20px;
+        }
+        
+        .warga-card, .pengaduan-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+            border-left: 5px solid var(--primary-color);
+            transition: box-shadow 0.3s;
+            margin-bottom: 20px; 
+        }
+        
+        .warga-card:hover, .pengaduan-card:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .warga-card h3, .pengaduan-card h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 1.3em;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--secondary-color);
+            color: var(--primary-color);
+        }
+        
+        /* Info Pengaduan */
+        .pengaduan-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 15px;
+            flex-wrap: wrap; 
+        }
+        .pengaduan-meta .status {
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        .status-BARU { background-color: #ffe082; color: #333; }
+        .status-DIPROSES { background-color: #90caf9; color: #333; }
+        .status-SELESAI { background-color: #a5d6a7; color: #333; }
+        
+        /* Tombol Aksi di Card */
+        .warga-card-actions, .pengaduan-footer {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end; 
+            gap: 10px;
+        }
+        .warga-card-actions a, .pengaduan-footer a {
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .link-detail { background-color: var(--primary-color); color: white; }
+        .link-edit { background-color: var(--accent-color); color: var(--text-dark); }
+        .link-hapus { background-color: var(--danger-color); color: white; }
+        
+        /* "READ MORE" (WA Style) */
+        .deskripsi-wrapper { position: relative; }
+        .deskripsi {
+            margin: 0;
+            max-height: 4.8em; 
+            overflow: hidden;
+            white-space: pre-line; 
+            transition: max-height 0.4s ease-out;
+        }
+        .read-more-toggle { display: none; }
+        .read-more-label {
+            display: inline-block; 
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-top: 5px;
+            text-decoration: underline;
+        }
+        .read-more-toggle:checked + .deskripsi {
+            max-height: 1000px; 
+            transition: max-height 0.5s ease-in;
+        }
+        .read-more-toggle:not(:checked) + .deskripsi + .read-more-label::before {
+            content: 'Baca Selengkapnya...';
+        }
+        .read-more-toggle:checked + .deskripsi + .read-more-label::before {
+            content: 'Tampilkan Lebih Sedikit';
+        }
+        
+        /* -------------------------- */
+        /* FORM AESTHETIC (PASTEL) */
+        /* -------------------------- */
+        .form-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+            border-top: 5px solid var(--accent-color); 
+        }
+        .form-container p {
+            margin-bottom: 20px;
+        }
+        .form-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95em;
+        }
+        .form-container input[type="text"],
+        .form-container input[type="number"],
+        .form-container textarea,
+        .form-container select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box; 
+            font-family: var(--font-family);
+            font-size: 1em;
+            background-color: #f9faff; /* Biru sangat muda (pastel) */
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-container input[type="text"]:focus,
+        .form-container input[type="number"]:focus,
+        .form-container textarea:focus,
+        .form-container select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 8px rgba(63, 81, 181, 0.2); 
+        }
+
+        /* Penataan Tombol Form (Simpan & Batal) */
+        .form-actions {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px; 
+            align-items: center;
+        }
+        .form-container button[type="submit"] {
+            background-color: var(--primary-color); 
+            color: var(--text-light);
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+            margin: 0;
+        }
+        .form-container button[type="submit"]:hover {
+            background-color: #303f9f; 
+            transform: translateY(-2px); 
+        }
+
+        /* Tombol Batal */
+        .btn-cancel {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            text-decoration: none; 
+            transition: background-color 0.3s, transform 0.2s;
+            background-color: var(--danger-color-pastel); 
+            color: var(--text-dark); 
+            border: 1px solid #ff5252;
+        }
+        .btn-cancel:hover {
+            background-color: var(--danger-color); 
+            color: var(--text-light); 
+            transform: translateY(-2px);
+        }
+        
+        /* -------------------------- */
+        /* STYLING UMUM (H1, H2, Footer) */
+        /* -------------------------- */
+        h1, h2 {
+            border-left: 5px solid var(--accent-color); 
+            padding-left: 10px;
+            padding-bottom: 5px;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+        }
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: auto;
+            color: #777;
+            border-top: 1px solid #eee;
+        }
+
+        /* -------------------------- */
+        /* MEDIA QUERY (MOBILE VIEW) */
+        /* -------------------------- */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: var(--sidebar-collapsed-width); 
+                padding: 10px 0;
+            }
+            .sidebar h1 {
+                font-size: 0;
+                line-height: 0;
+                padding: 10px 0;
+                height: 40px;
+                overflow: hidden; 
+            }
+            .sidebar .link-text {
+                display: none;
+            }
+            .sidebar .icon {
+                margin-right: 0; 
+            }
+            .sidebar nav a {
+                justify-content: center; 
+            }
+            
+            .main-content {
+                padding: 15px; 
+            }
+            
+            .warga-list-container {
+                grid-template-columns: 1fr; 
+            }
+            
+            .warga-card-actions, .pengaduan-footer {
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+            
+            .form-actions {
+                flex-direction: column; /* Tumpuk tombol di mobile */
+                align-items: stretch; /* Buat tombol full width */
+            }
+            .btn-cancel {
+                text-align: center; /* Tombol batal jadi center */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="sidebar">
+        <h1>🏡 Kelurahan</h1>
+        <nav>
+            <a href="{% url 'warga-list' %}">
+                <span class="icon">🏠</span> 
+                <span class="link-text">Data Warga</span>
+            </a>
+            <a href="{% url 'pengaduan-list' %}">
+                <span class="icon">🚨</span> 
+                <span class="link-text">Pengaduan</span>
+            </a>
+            <a href="{% url 'warga-tambah' %}">
+                <span class="icon">➕</span> 
+                <span class="link-text">Tambah Warga</span>
+            </a>
+            <a href="/admin/">
+                <span class="icon">🔑</span> 
+                <span class="link-text">Admin</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+
+        <footer>
+            <p>Framework Programming - Studi Kasus Kelurahan &copy; 2025</p>
+        </footer>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,11 +1,17 @@
 # warga/views.py
-from .models import Warga
+
+from .models import Warga, Pengaduan
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
-from .models import Warga, Pengaduan
+# Perhatikan: Anda sudah mengimpor .models dua kali, 
+# tapi itu tidak menyebabkan error fatal. Kita fokus pada yang DRF.
 from .forms import WargaForm, PengaduanForm
+
+# --- IMPORT DRF ---
+from rest_framework.generics import ListAPIView
+from .serializers import WargaSerializer, PengaduanSerializer
 
 # ----------------------------------------------------
 # VIEWS UNTUK WARGA (CRUD Penuh)
@@ -66,3 +72,17 @@ class PengaduanDeleteView(DeleteView):
     model = Pengaduan
     template_name = 'warga/pengaduan_confirm_delete.html'
     success_url = reverse_lazy('pengaduan-list')
+
+# ====================================================
+# API VIEWS DENGAN DJANGO REST FRAMEWORK (DRF)
+# ====================================================
+
+class WargaListAPIView(ListAPIView):
+    # Tugas Pertemuan 6: ListAPIView untuk Daftar Warga
+    queryset = Warga.objects.all()
+    serializer_class = WargaSerializer
+
+class PengaduanListAPIView(ListAPIView):
+    # Tambahan: ListAPIView untuk Daftar Pengaduan
+    queryset = Pengaduan.objects.all()
+    serializer_class = PengaduanSerializer

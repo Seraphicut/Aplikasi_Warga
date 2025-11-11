@@ -1,17 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Konfirmasi Hapus Pengaduan</title>
-</head>
-<body>
-    <h1>Hapus Pengaduan</h1>
-    <p>Apakah Anda yakin ingin menghapus pengaduan: <strong>{{ object.judul }}</strong>?</p>
-    <p>Pelapor: {{ object.pelapor.nama_lengkap }}</p>
+{% extends "base.html" %}
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Ya, Hapus Pengaduan</button>
-        <a href="{% url 'pengaduan-list' %}">Batal</a>
-    </form>
-</body>
-</html>
+{% block title %}Konfirmasi Hapus Pengaduan{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger shadow-lg" role="alert">
+    <h4 class="alert-heading">Konfirmasi Penghapusan Pengaduan!</h4>
+    <p>Apakah Anda **YAKIN** ingin menghapus pengaduan berikut?</p>
+    
+    <div class="mb-3 p-3 bg-light rounded">
+        <h5 class="text-dark">{{ object.judul }}</h5>
+        <p class="mb-0 small">Dilaporkan oleh: **{{ object.pelapor.nama_lengkap }}**</p>
+        <p class="mb-0 small">Status: **{{ object.get_status_display }}**</p>
+    </div>
+    
+    <hr>
+    
+    <p class="mb-0">Tindakan ini **TIDAK DAPAT DIBATALKAN**.</p>
+    
+    <div class="mt-4">
+        <form method="post" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-lg me-2">
+                Ya, Hapus Pengaduan
+            </button>
+        </form>
+        <a href="{% url 'pengaduan-list' %}" class="btn btn-secondary btn-lg">Batal</a>
+    </div>
+</div>
+{% endblock content %}

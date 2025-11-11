@@ -1,32 +1,41 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Daftar Semua Pengaduan</title>
-</head>
-<body>
-    <h1>Daftar Semua Pengaduan</h1>
-    <p>
-        <a href="{% url 'warga-list' %}">Kembali ke Daftar Warga</a> | 
-        <a href="{% url 'pengaduan-tambah' %}">Buat Pengaduan Baru</a>
-    </p>
-    <hr>
-    <ul>
-        {% for aduan in object_list %}
-            <li>
-                <strong>{{ aduan.judul }}</strong> 
-                (Status: {{ aduan.get_status_display }})
-                
-                Dilaporkan oleh: 
-                <a href="{% url 'warga-detail' aduan.pelapor.pk %}">{{ aduan.pelapor.nama_lengkap }}</a>
-                
-                [ <a href="{% url 'pengaduan-edit' aduan.pk %}">Edit</a> | 
-                <a href="{% url 'pengaduan-hapus' aduan.pk %}">Hapus</a> ]
+{% extends "base.html" %}
 
-                <p style="margin-top: 5px; margin-left: 10px;">{{ aduan.deskripsi }}</p>
-            </li>
-        {% empty %}
-            <li>Belum ada data pengaduan yang terdaftar.</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% block title %}Daftar Pengaduan{% endblock %}
+
+{% block content %}
+    <h2>🚨 Daftar Pengaduan Warga</h2>
+    
+    <a href="{% url 'pengaduan-tambah' %}" style="display: inline-block; padding: 10px 15px; background-color: var(--primary-color); color: white; text-decoration: none; border-radius: 5px; margin-bottom: 25px; font-weight: normal; transition: background-color 0.3s;">
+        <span class="icon">➕</span> Buat Pengaduan Baru
+    </a>
+
+    {% for aduan in object_list %}
+        <div class="pengaduan-card">
+            
+            <h3>{{ aduan.judul }}</h3>
+            
+            <div class="pengaduan-meta">
+                <span class="status status-{{ aduan.status }}">{{ aduan.get_status_display }}</span>
+                <small>Dilaporkan oleh: <a href="{% url 'warga-detail' aduan.pelapor.pk %}">
+                    <strong>{{ aduan.pelapor.nama_lengkap }}</strong>
+                </a> pada {{ aduan.tanggal_lapor|date:"d M Y" }}</small>
+            </div>
+    
+            <div class="deskripsi-wrapper">
+                <input type="checkbox" class="read-more-toggle" id="read-more-{{ aduan.pk }}">
+                
+                <div class="deskripsi">{{ aduan.deskripsi }}</div>
+                
+                <label for="read-more-{{ aduan.pk }}" class="read-more-label"></label>
+            </div>
+            
+            <div class="pengaduan-footer">
+                <a href="{% url 'pengaduan-update' aduan.pk %}" class="link-edit">Edit</a>
+                <a href="{% url 'pengaduan-delete' aduan.pk %}" class="link-hapus">Hapus</a>
+            </div>
+        </div>
+    {% empty %}
+        <p>Belum ada pengaduan yang dibuat.</p>
+    {% endfor %}
+
+{% endblock %}

@@ -1,88 +1,89 @@
 # warga/views.py
-
-from .models import Warga, Pengaduan
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
-# Perhatikan: Anda sudah mengimpor .models dua kali, 
-# tapi itu tidak menyebabkan error fatal. Kita fokus pada yang DRF.
+from rest_framework import viewsets # Viewsets untuk API CRUD Penuh
+from .models import Warga, Pengaduan
 from .forms import WargaForm, PengaduanForm
+from .serializers import WargaSerializer, PengaduanSerializer # Serializer
 
-# --- IMPORT DRF ---
-from rest_framework.generics import ListAPIView
-from .serializers import WargaSerializer, PengaduanSerializer
+# Catatan: Import ListAPIView dan duplikasi serializer sudah dihapus/dirapikan di atas.
 
 # ----------------------------------------------------
-# VIEWS UNTUK WARGA (CRUD Penuh)
+# VIEWS UNTUK HTML (CBV CRUD)
 # ----------------------------------------------------
 
 class WargaListView(ListView):
-    # Pertemuan 1: ListView (R)
     model = Warga
 
 class WargaDetailView(DetailView):
-    # Pertemuan 1: DetailView (R) - Challenge
     model = Warga
 
 class WargaCreateView(CreateView):
-    # Pertemuan 3: CreateView (C)
     model = Warga
     form_class = WargaForm
     template_name = 'warga/warga_form.html'
     success_url = reverse_lazy('warga-list')
 
 class WargaUpdateView(UpdateView):
-    # Pertemuan 4: UpdateView (U)
     model = Warga
     form_class = WargaForm
     template_name = 'warga/warga_form.html'
-    success_url = reverse_lazy('warga-list')
+    success_url = reverse_lazy('warga-list') 
 
 class WargaDeleteView(DeleteView):
-    # Pertemuan 4: DeleteView (D)
     model = Warga
     template_name = 'warga/warga_confirm_delete.html'
     success_url = reverse_lazy('warga-list')
 
 # ----------------------------------------------------
-# VIEWS UNTUK PENGADUAN (Challenge Pertemuan 2, 3, 4)
+# VIEWS UNTUK PENGADUAN (CBV CRUD)
 # ----------------------------------------------------
 
 class PengaduanListView(ListView):
-    # Pertemuan 2: ListView untuk Pengaduan
     model = Pengaduan
 
 class PengaduanCreateView(CreateView):
-    # Pertemuan 3: CreateView untuk Pengaduan
     model = Pengaduan
     form_class = PengaduanForm
     template_name = 'warga/pengaduan_form.html'
     success_url = reverse_lazy('pengaduan-list')
 
 class PengaduanUpdateView(UpdateView):
-    # Pertemuan 4: UpdateView untuk Pengaduan - Challenge
     model = Pengaduan
     form_class = PengaduanForm
     template_name = 'warga/pengaduan_form.html' 
     success_url = reverse_lazy('pengaduan-list')
 
 class PengaduanDeleteView(DeleteView):
-    # Pertemuan 4: DeleteView untuk Pengaduan - Challenge
     model = Pengaduan
     template_name = 'warga/pengaduan_confirm_delete.html'
     success_url = reverse_lazy('pengaduan-list')
 
 # ====================================================
-# API VIEWS DENGAN DJANGO REST FRAMEWORK (DRF)
+# API VIEWS DENGAN DRF VIEWSETS (CRUD Penuh)
 # ====================================================
 
-class WargaListAPIView(ListAPIView):
-    # Tugas Pertemuan 6: ListAPIView untuk Daftar Warga
-    queryset = Warga.objects.all()
+class WargaViewset(viewsets.ModelViewSet):
+    queryset = Warga.objects.all().order_by('-tanggal_registrasi') 
     serializer_class = WargaSerializer
 
-class PengaduanListAPIView(ListAPIView):
-    # Tambahan: ListAPIView untuk Daftar Pengaduan
-    queryset = Pengaduan.objects.all()
+class PengaduanViewset(viewsets.ModelViewSet):
+    """API Viewset untuk Model Pengaduan (CRUD Penuh)."""
+    queryset = Pengaduan.objects.all().order_by('-tanggal_lapor') 
     serializer_class = PengaduanSerializer
+
+    def get_renderer_context(self):
+        context = super().get_renderer_context()
+        
+        # Cek apakah request sukses membuat data (HTTP 201 Created)
+        if context.get('response') and context['response'].status_code == 201:
+            # Inject JavaScript untuk me-reset URL dan me-reload halaman
+            context['post_form_html'] = (
+                '<script>'
+                'window.history.replaceState({}, document.title, window.location.pathname);'
+                'window.location.reload();'
+                '</script>'
+            )
+        return context

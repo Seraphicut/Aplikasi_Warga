@@ -3,15 +3,16 @@ from django.urls import reverse_lazy
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
-from rest_framework import viewsets # Viewsets untuk API CRUD Penuh
+from rest_framework import viewsets
+# 🌟 IMPOR BARU UNTUK FILTERING & ORDERING
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.permissions import IsAuthenticatedOrReadOnly 
 from .models import Warga, Pengaduan
 from .forms import WargaForm, PengaduanForm
-from .serializers import WargaSerializer, PengaduanSerializer # Serializer
-
-# Catatan: Import ListAPIView dan duplikasi serializer sudah dihapus/dirapikan di atas.
+from .serializers import WargaSerializer, PengaduanSerializer 
 
 # ----------------------------------------------------
-# VIEWS UNTUK HTML (CBV CRUD)
+# VIEWS UNTUK HTML (CBV CRUD) - (Tidak berubah)
 # ----------------------------------------------------
 
 class WargaListView(ListView):
@@ -38,7 +39,7 @@ class WargaDeleteView(DeleteView):
     success_url = reverse_lazy('warga-list')
 
 # ----------------------------------------------------
-# VIEWS UNTUK PENGADUAN (CBV CRUD)
+# VIEWS UNTUK PENGADUAN (CBV CRUD) - (Tidak berubah)
 # ----------------------------------------------------
 
 class PengaduanListView(ListView):
@@ -62,18 +63,31 @@ class PengaduanDeleteView(DeleteView):
     success_url = reverse_lazy('pengaduan-list')
 
 # ====================================================
-# API VIEWS DENGAN DRF VIEWSETS (CRUD Penuh)
+# API VIEWS DENGAN DRF VIEWSETS (CRUD Penuh & Efisien)
 # ====================================================
 
 class WargaViewset(viewsets.ModelViewSet):
     queryset = Warga.objects.all().order_by('-tanggal_registrasi') 
     serializer_class = WargaSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly] # Dari Pertemuan 9
+    
+    # 🌟 KONFIGURASI FILTERING, SEARCHING, DAN ORDERING (Pertemuan 10)
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['nama_lengkap', 'nik', 'alamat'] # Field untuk pencarian (?search=...)
+    ordering_fields = ['nama_lengkap', 'tanggal_registrasi'] # Field yang bisa diurutkan (?ordering=...)
 
 class PengaduanViewset(viewsets.ModelViewSet):
     """API Viewset untuk Model Pengaduan (CRUD Penuh)."""
     queryset = Pengaduan.objects.all().order_by('-tanggal_lapor') 
     serializer_class = PengaduanSerializer
-
+    permission_classes = [IsAuthenticatedOrReadOnly] # Dari Pertemuan 9
+    
+    # 🌟 KONFIGURASI FILTERING, SEARCHING, DAN ORDERING (Pertemuan 10 - Tugas Praktik)
+    filter_backends = [SearchFilter, OrderingFilter]
+    # Pencarian di Judul, Deskripsi, dan Nama Pelapor (relasi ForeignKey)
+    search_fields = ['judul', 'deskripsi', 'pelapor__nama_lengkap'] 
+    ordering_fields = ['status', 'tanggal_lapor', 'judul']
+    
     def get_renderer_context(self):
         context = super().get_renderer_context()
         
